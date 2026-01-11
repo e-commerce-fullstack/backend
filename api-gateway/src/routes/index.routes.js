@@ -162,15 +162,39 @@ router.get(`${v1}/products/:id`, async (req, res) => {
 });
 
 // 5. Update Product (Protected)
-router.put(`${v1}/products/:id`, authMiddleware, async (req, res) => {
+// Update product (Gateway)
+router.put(`${v1}/products/:id`, authMiddleware, upload.single('image'), async (req, res) => {
+  const { id } = req.params;
+  console.log(`🛠️ Gateway: Updating product ${id}...`);
+  
   try {
-    const r = await axios.put(
-      `${PRODUCT_SERVICE_URL}/api/v1/product/${req.params.id}`, 
-      req.body
-    );
-    res.json(r.data);
+    const form = new FormData();
+    
+    // 1. Append text fields (only append if they exist in req.body)
+    Object.keys(req.body).forEach(key => {
+      form.append(key, req.body[key]);
+    });
+
+    // 2. Append the NEW image if provided
+    if (req.file) {
+      form.append('image', req.file.buffer, {
+        filename: req.file.originalname,
+        contentType: req.file.mimetype,
+      });
+    }
+
+    // 3. Forward PUT request to Product Service
+    const response = await axios.put(`${PRODUCT_SERVICE_URL}/api/v1/product/${id}`, form, {
+      headers: {
+        ...form.getHeaders(),
+        Authorization: req.headers.authorization
+      }
+    });
+
+    res.status(200).json(response.data);
   } catch (e) {
-    res.status(500).json(e.response?.data);
+    console.error("❌ Gateway Update Error:", e.message);
+    res.status(e.response?.status || 500).json(e.response?.data);
   }
 });
 
