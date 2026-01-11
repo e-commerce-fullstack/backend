@@ -7,7 +7,9 @@ import {
 } from "../database/repositories/order.repository.js";
 
 // Python Service Port configuration
-const PAYMENT_SERVICE_URL = "http://localhost:4004";
+const PAYMENT_SERVICE_URL =
+  process.env.PAYMENT_SERVICE_URL || "http://localhost:4004";
+
 /**
  * Place an order & Get Bakong QR from Python Microservice
  * @param {Object} data - { userId, products: [{ productId, quantity }], total }
@@ -36,17 +38,20 @@ export const placeOrder = async (data) => {
     paymentStatus: "unpaid",
   };
 
-  // 3. Save Order to Database (MongoDB)
+  // 2. Save Order
   const savedOrder = await createOrder(orderData);
 
-  // 4. Request KHQR Generation from Python Payment Service
-  // 4. Request KHQR Generation from Python Payment Service
   try {
-    // Ensure the URL includes the full path /api/v1/payments/generate
-    const targetUrl = `${PAYMENT_SERVICE_URL}/api/v1/payments/generate`;
+    // 3. Clean the URL construction to prevent double slashes
+    // This removes any trailing slash from the base URL before adding the path
+    const cleanBaseUrl = PAYMENT_SERVICE_URL.replace(/\/+$/, "");
+    const targetUrl = `${cleanBaseUrl}/api/v1/payments/generate`;
+
+    // Log the URL so you can see it in Render Logs for debugging
+    console.log(`🔗 Attempting to reach Payment Service at: ${targetUrl}`);
 
     const paymentResponse = await axios.post(targetUrl, {
-      order_id: savedOrder._id.toString(), // ⚠️ USE order_id (snake_case) to match your Python fix
+      order_id: savedOrder._id.toString(),
       amount: savedOrder.total,
     });
 
@@ -56,19 +61,18 @@ export const placeOrder = async (data) => {
       paymentData: paymentResponse.data.data,
     };
   } catch (error) {
-    console.error(
-      "❌ Communication with Python Payment Service failed:",
-      error.message
-    );
+    // 4. Enhanced logging for production
+    console.error("❌ Payment Service Error:", {
+      message: error.message,
+      url: error.config?.url,
+      status: error.response?.status,
+    });
 
-    // We return the order anyway so the user doesn't lose their cart,
-    // but we flag that the QR code generation failed.
     return {
       success: true,
       order: savedOrder,
       paymentData: null,
-      warning:
-        "Order saved but payment QR could not be generated. Please try again from order history.",
+      warning: "Order saved but QR generation failed. Check Render logs.",
     };
   }
 };
