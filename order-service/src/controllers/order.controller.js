@@ -1,4 +1,4 @@
-import { placeOrder, listOrders, getOrderById } from "../services/order.service.js";
+import { placeOrder, listOrders, getOrderById, markOrderAsPaid } from "../services/order.service.js";
 
 
 export const create = async (req, res) => {
@@ -17,6 +17,21 @@ export const create = async (req, res) => {
   } catch (err) {
     console.error("❌ CREATE ERROR:", err.message);
     res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+
+export const updateStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { transactionId } = req.body;
+    
+    // This calls the service function we looked at earlier
+    const updatedOrder = await markOrderAsPaid(id, transactionId);
+    
+    res.status(200).json({ success: true, data: updatedOrder });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
