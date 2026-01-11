@@ -6,6 +6,11 @@ const app = express()
 
 app.use(express.json())
 
+// --- ADD THIS SECTION ---
+app.get("/health", (req, res) => {
+  res.status(200).send("ok");
+});
+// ------------------------
 
 connectDB()
 
