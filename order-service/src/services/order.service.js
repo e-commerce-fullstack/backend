@@ -7,8 +7,8 @@ import {
 } from "../database/repositories/order.repository.js";
 
 // Python Service Port configuration
-const PAYMENT_SERVICE_URL =
-  process.env.PAYMENT_SERVICE_URL || "http://localhost:4004";
+
+const PAYMENT_SERVICE_URL = process.env.PAYMENT_SERVICE_URL;
 
 /**
  * Place an order & Get Bakong QR from Python Microservice
