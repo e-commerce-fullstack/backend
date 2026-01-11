@@ -42,7 +42,7 @@ This repository contains a microservices setup for an e-commerce system, includi
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/e-commerce-fullstack/backend.git
+git clone https://github.com/e-commerce-fullstack/backend.git microservice
 cd microservice
 ```
 
