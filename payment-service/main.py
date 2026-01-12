@@ -43,7 +43,9 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "https://e-commerce-testing-tan.vercel.app",
-        "https://e-smart-shop.vercel.app"
+        "https://e-smart-shop.vercel.app",
+        "https://backend-1-lcio.onrender.com/api/v1/orders",
+        "https://backend-1-lcio.onrender.com/api",
     ],
     allow_credentials=True,
     allow_methods=["*"],

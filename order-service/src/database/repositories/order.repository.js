@@ -11,13 +11,26 @@ export const listOrders = (filter = {}) => {
   return Order.find(filter).sort({ createdAt: -1 });
 };
 
-export const updateOrderPaymentRepo = (orderId, bankHash) => {
+// export const updateOrderPaymentRepo = (orderId, bankHash) => {
+//   return Order.findByIdAndUpdate(
+//     orderId,
+//     {
+//       paymentStatus: "paid",
+//       status: "processing",
+//       transactionId: bankHash,
+//     },
+//     { new: true }
+//   );
+// };
+
+// Ensure the parameter name matches the value name below
+export const updateOrderPaymentRepo = (orderId, transactionId) => {
   return Order.findByIdAndUpdate(
     orderId,
     {
       paymentStatus: "paid",
       status: "processing",
-      transactionId: bankHash,
+      transactionId: transactionId, // This must be transactionId
     },
     { new: true }
   );
