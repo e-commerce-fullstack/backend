@@ -25,9 +25,18 @@ export const updateStatus = async (req, res) => {
   try {
     const { id } = req.params;
     const { transactionId } = req.body;
+
     
     // This calls the service function we looked at earlier
     const updatedOrder = await markOrderAsPaid(id, transactionId);
+
+    // 🔥 CRITICAL: If the database didn't find the ID, updatedOrder will be null
+    if (!updatedOrder) {
+      return res.status(404).json({
+        success: false,
+        message: `Order ${id} not found in Order Database.`
+      });
+    }
     
     res.status(200).json({ success: true, data: updatedOrder });
   } catch (error) {

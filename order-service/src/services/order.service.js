@@ -98,12 +98,20 @@ export const listOrders = async (filter = {}) => {
  * @param {String} orderId
  * @param {String} transactionId - External reference from Bakong
  */
+// export const markOrderAsPaid = async (orderId, transactionId) => {
+//   const updatedOrder = await updateOrderPaymentRepo(orderId, {
+//     paymentStatus: "paid",
+//     status: "processing",
+//     transactionId: transactionId,
+//   });
+
+//   if (!updatedOrder) throw new Error("Failed to update order payment status");
+//   return updatedOrder;
+// };
+
 export const markOrderAsPaid = async (orderId, transactionId) => {
-  const updatedOrder = await updateOrderPaymentRepo(orderId, {
-    paymentStatus: "paid",
-    status: "processing",
-    transactionId: transactionId,
-  });
+  // Pass the ID and the String directly to the repo
+  const updatedOrder = await updateOrderPaymentRepo(orderId, transactionId);
 
   if (!updatedOrder) throw new Error("Failed to update order payment status");
   return updatedOrder;
